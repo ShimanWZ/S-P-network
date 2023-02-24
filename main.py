@@ -67,7 +67,7 @@ def check4changes(text, cipher, times):
 
     print_table(dependency_table)
     print("changes percentage:", sum(row.count(1) for row in dependency_table)/(len(text)*len(text)))
-    return sum(row.count(1) for row in dependency_table)/(len(text)*len(text))
+    return dependency_table, sum(row.count(1) for row in dependency_table)/(len(text)*len(text))
 
 
 # this function will print a 2d array(dependency_table) to a table
@@ -100,7 +100,7 @@ def test_repeat_effect():
     for i in range(2, 50):
         repeat_times = i
         the_cipher = encrypt(class_input, repeat_times)
-        percentage = check4changes(class_input, the_cipher, repeat_times)
+        table, percentage = check4changes(class_input, the_cipher, repeat_times)
         percentage_table[i] = percentage
     print_percentages_table(percentage_table)
 
@@ -125,19 +125,28 @@ def random_bin_string_generator(n):
 # on them and returns the mean of changes
 def test_random_inputs(count):
     percentage_sum = 0
+    tables = []
+    for i in range(6):
+        tables.append([0]*6)
+
     for i in range(count):
         random_input = random_bin_string_generator(6)
         print(random_input)
         repeat_times = 4
         the_cipher = encrypt(random_input, repeat_times)
-        percentage = check4changes(random_input, the_cipher, repeat_times)
+        table, percentage = check4changes(random_input, the_cipher, repeat_times)
         percentage_sum = percentage_sum + percentage
 
+        for x in range(len(random_input)):
+            tables[x] = list(a | b for a, b in zip(table[x], tables[x]))
+
+    print_table(tables)
+    print("percentage of all tables combined:", str(sum(row.count(1) for row in tables)/(6 * 6)))
     print("mean percentage:", str(percentage_sum/count))
     return percentage_sum/count
 
 
 if __name__ == '__main__':
-    test_class_input()
+    # test_class_input()
     # test_repeat_effect()
-    # test_random_inputs(100)
+    test_random_inputs(200)
